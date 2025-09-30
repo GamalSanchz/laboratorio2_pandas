@@ -57,7 +57,7 @@ def main():
         print("   (No hay columnas numéricas para ordenar).")
     linea()
 
-    # 6
+    # numeral 6
     print("6. Seleccionar una columna y, calcular al menos dos de las siguientes medidas:")
     print("   a. Media (np.mean())")
     print("   b. Mediana (np.median())")
@@ -69,16 +69,20 @@ def main():
         return
     col = num_cols[0]
     serie = df[col].dropna().to_numpy()
-
+    #calculo de la media
     media = float(np.mean(serie))
+    #calculo de la mediana
     mediana = float(np.median(serie))
-    desv = float(np.std(serie, ddof=0))  # población; usa ddof=1 para muestra
+    # calculo de la desviación estándar
+    desv = float(np.std(serie, ddof=0))  
 
+# Resultados
     print(f"\n   → Columna seleccionada: {col}")
     print(f"   a) Media: {media:.4f}")
     print(f"   b) Mediana: {mediana:.4f}")
     print(f"   c) Desviación estándar: {desv:.4f}")
-
+# Fin del reporte
+    linea()
     print("\n✔ Fin del reporte. (Todo mostrado en consola)")
 
 if __name__ == "__main__":
