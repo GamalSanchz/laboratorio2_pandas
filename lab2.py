@@ -1,62 +1,85 @@
-# lab2.py (solo salida en terminal)
+# lab2.py — Cumple consigna textual (1–6) y muestra todo en consola
 import pandas as pd
+import numpy as np
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parent
-CSV = ROOT / "data" / "world_economics.csv"
+RUTA = Path(__file__).resolve().parent / "data" / "world_economics.csv"
 
-if not CSV.exists():
-    print(f"No encontré el CSV en: {CSV}")
-    sys.exit(1)
+def linea():
+    print("-" * 90)
 
-print(f"Usando CSV: {CSV}\n")
-df = pd.read_csv(CSV)
+def main():
+    if not RUTA.exists():
+        print(f"No encuentro el archivo CSV en: {RUTA}")
+        sys.exit(1)
 
-# 1) Forma, columnas, primeras/últimas filas
-print("=== SHAPE ===")
-print(df.shape)  # (filas, columnas)
+    df = pd.read_csv(RUTA)
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.width", 140)
 
-print("\n=== COLUMNAS ===")
-print(list(df.columns))
+    # 1
+    print("1. Seleccione un dataset propio (CSV) utilizando la página de https://www.kaggle.com/ y descárguelo para su uso.")
+    print(f"   → Archivo usado: {RUTA}")
+    linea()
 
-print("\n=== HEAD (5) ===")
-print(df.head())
+    # 2
+    print("2. Usar describe() de la librería Pandas para resumir la información del dataset.")
+    print(df.describe(include="all").round(2))
+    linea()
 
-print("\n=== TAIL (5) ===")
-print(df.tail())
+    # 3
+    print("3. Identificar los tipos de datos de cada columna utilizando dtypes y qué tipo de análisis se puede hacer sobre esta información.")
+    print(df.dtypes.astype(str))
+    linea()
 
-# 2) Tipos y nulos
-print("\n=== DTYPES ===")
-print(df.dtypes)
+    # 4
+    print("4. Mostrar los primeros y últimos registros (head(), tail()) para detectar tendencias.")
+    print("\n   head() (primeras 5 filas):")
+    print(df.head().to_string(index=False))
+    print("\n   tail() (últimas 5 filas):")
+    print(df.tail().to_string(index=False))
+    linea()
 
-print("\n=== NULOS POR COLUMNA ===")
-print(df.isna().sum())
+    # 5
+    print("5. Ordenar los resultados (sort_values()) para ver cuáles categorías destacan más o menos.")
+    # Elige automáticamente una columna numérica razonable; ajusta aquí si quieres otra
+    prioridad = ["GDP", "Population", "Debt/GDP", "Inflation Rate", "GDP Growth"]
+    num_cols = [c for c in prioridad if c in df.columns and pd.api.types.is_numeric_dtype(df[c])]
+    if not num_cols:
+        num_cols = df.select_dtypes(include="number").columns.tolist()
+    if num_cols:
+        col_orden = num_cols[0]
+        print(f"   → Ordenado por '{col_orden}' (descendente), top 10:")
+        cols_show = ["name", col_orden] if "name" in df.columns else [col_orden]
+        print(df[cols_show].sort_values(col_orden, ascending=False).head(10).round(2).to_string(index=False))
+    else:
+        print("   (No hay columnas numéricas para ordenar).")
+    linea()
 
-# 3) Describe (compatible con cualquier versión de pandas)
-print("\n=== DESCRIBE NUMÉRICO ===")
-print(df.describe())
+    # 6
+    print("6. Seleccionar una columna y, calcular al menos dos de las siguientes medidas:")
+    print("   a. Media (np.mean())")
+    print("   b. Mediana (np.median())")
+    print("   c. Desviación estándar (np.std())")
 
-print("\n=== DESCRIBE CATEGÓRICO ===")
-obj_cols = df.select_dtypes(include="object")
-if not obj_cols.empty:
-    print(obj_cols.describe())
-else:
-    print("(No hay columnas categóricas)")
+    # Columna elegida para las medidas (mismo criterio que arriba)
+    if not num_cols:
+        print("   (No hay columnas numéricas para calcular medidas).")
+        return
+    col = num_cols[0]
+    serie = df[col].dropna().to_numpy()
 
-# 4) Top 10 por alguna métrica si existe
-for col in ["GDP", "Population", "Debt/GDP", "Inflation Rate", "GDP Growth"]:
-    if col in df.columns:
-        print(f"\n=== TOP 10 por '{col}' (desc) ===")
-        cols_to_show = ["name", col] if "name" in df.columns else [col]
-        print(df[cols_to_show].sort_values(col, ascending=False).head(10))
+    media = float(np.mean(serie))
+    mediana = float(np.median(serie))
+    desv = float(np.std(serie, ddof=0))  # población; usa ddof=1 para muestra
 
-# 5) Correlación rápida (numérico)
-num = df.select_dtypes(include="number")
-if not num.empty:
-    print("\n=== CORRELACIÓN (primeras 8 columnas numéricas) ===")
-    print(num.iloc[:, :8].corr().round(3))
-else:
-    print("\n(No hay columnas numéricas para correlación)")
+    print(f"\n   → Columna seleccionada: {col}")
+    print(f"   a) Media: {media:.4f}")
+    print(f"   b) Mediana: {mediana:.4f}")
+    print(f"   c) Desviación estándar: {desv:.4f}")
 
-print("\n✓ Fin del reporte en terminal.")
+    print("\n✔ Fin del reporte. (Todo mostrado en consola)")
+
+if __name__ == "__main__":
+    main()
