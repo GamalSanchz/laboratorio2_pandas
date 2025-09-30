@@ -43,7 +43,7 @@ def main():
 
     # 5
     print("5. Ordenar los resultados (sort_values()) para ver cuáles categorías destacan más o menos.")
-    # Elige automáticamente una columna numérica razonable; ajusta aquí si quieres otra
+    # Elige automáticamente una columna numérica razonable (por lo general GDP o Population)
     prioridad = ["GDP", "Population", "Debt/GDP", "Inflation Rate", "GDP Growth"]
     num_cols = [c for c in prioridad if c in df.columns and pd.api.types.is_numeric_dtype(df[c])]
     if not num_cols:
